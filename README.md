@@ -2,7 +2,7 @@
 
 A sleek, offline-ready interactive reference for "Living Off The Land" binaries, techniques, and reverse shell generation. Inspired by tools like LOLBAS, GTFOBins, WADComs, and PayloadsAllTheThings.
 
-![Main UI Preview](images/screenshot-main.png)
+![image](https://github.com/user-attachments/assets/fdc5b226-1061-4f1f-aac2-9533c1b176c1)
 
 ---
 
@@ -17,16 +17,6 @@ A sleek, offline-ready interactive reference for "Living Off The Land" binaries,
   - [GTFOBins](https://gtfobins.github.io/)
   - [WADComs](https://wadcoms.github.io/)
   - [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
-
----
-
-## 📸 Screenshots
-
-### 🔍 Filtered Search and Binaries
-![Filter & Search](images/screenshot-filter-search.png)
-
-### 🐚 Reverse Shell Generator
-![Reverse Shell Generator](images/screenshot-shell-generator.png)
 
 ---
 
