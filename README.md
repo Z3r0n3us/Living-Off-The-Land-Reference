@@ -29,7 +29,7 @@ A sleek, offline-ready interactive reference for "Living Off The Land" binaries,
 
 2. Open the HTML locally:
 xdg-open Living\ Off\ The\ Land\ Reference.html
-# or simply double-click on it in your file manager
+or simply double-click on it in your file manager
 
 ✅ No server required — everything runs offline in your browser.
 
