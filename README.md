@@ -60,10 +60,6 @@ Feel free to fork, submit issues, or contribute new payloads and enhancements.
 
 Built by hackers, for hackers — responsibly. 🧠💥
 
-ub Pages), or shell payload snippets preformatted in tables.
-
-
-
 
 
 
